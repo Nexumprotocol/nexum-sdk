@@ -1,0 +1,11 @@
+pub const NEXUM_PROGRAM_ID:  &str = "7yn8tuqHbNFRojEgiWeSoJkYjYtmdh1w4dKA2bCgNNzA";
+pub const NEXUM_DEVNET_RPC:  &str = "https://api.devnet.solana.com";
+pub const NEXUM_MAINNET_RPC: &str = "https://api.mainnet-beta.solana.com";
+pub const LAMPORTS_PER_SOL:  u64  = 1_000_000_000;
+pub const PLATFORM_FEE_BPS:  u64  = 250;
+pub const TASK_SEED:    &[u8] = b"task";
+pub const ESCROW_SEED:  &[u8] = b"escrow";
+pub const PROFILE_SEED: &[u8] = b"profile";
+pub const DISPUTE_SEED: &[u8] = b"dispute";
+pub const SBT_THRESHOLDS: &[u64] = &[0,5,15,30,50];
+pub const SBT_LABELS: &[&str] = &["Newcomer","Contributor","Builder","Expert","Legend"];
