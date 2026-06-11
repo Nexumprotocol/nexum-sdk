@@ -15,7 +15,7 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - run: cd packages/ts && npm install
-      - run: cd packages/ts && npm run build -- --no-dts-resolve
+      - run: cd packages/ts && npx tsup src/index.ts --format cjs,esm --dts --no-dts-resolve
       - run: cd packages/ts && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
