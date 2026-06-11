@@ -10,13 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-      - run: cd packages/ts && npm install
-      - run: cd packages/ts && npx tsup src/index.ts --format cjs,esm --dts --no-dts-resolve
-      - run: cd packages/ts && npm publish --access public
+      
+      - name: Update package.json version
+        run: |
+          cd packages/ts
+          npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
+      
+      - name: Install dependencies
+        run: cd packages/ts && npm install
+      
+      - name: Build package
+        run: cd packages/ts && npm run build
+      
+      - name: Publish to NPM
+        run: cd packages/ts && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -24,12 +40,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install build twine
-      - run: cd packages/py && python -m build
-      - run: cd packages/py && twine upload dist/*
+      
+      - name: Update pyproject.toml version
+        run: |
+          cd packages/py
+          sed -i "s/version = .*/version = \"${{ steps.version.outputs.VERSION }}\"/" pyproject.toml
+          cat pyproject.toml | grep version
+      
+      - name: Install build tools
+        run: pip install --upgrade pip setuptools wheel build twine
+      
+      - name: Build package
+        run: cd packages/py && python -m build
+      
+      - name: Verify build artifacts
+        run: |
+          cd packages/py
+          ls -lah dist/
+          python -m twine check dist/*
+      
+      - name: Upload to PyPI
+        run: cd packages/py && python -m twine upload dist/* --skip-existing
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
